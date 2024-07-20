@@ -1,19 +1,24 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
+	"github.com/muneeb-jan/go-broker/internal/controller"
 	"github.com/muneeb-jan/go-broker/internal/messagebroker"
 )
 
 func main() {
 	broker := messagebroker.NewBroker()
+	ctrl := controller.NewController(broker)
 
-	subscriber1 := &messagebroker.ConcreteSubscriber{ID: "1"}
-	subscriber2 := &messagebroker.ConcreteSubscriber{ID: "2"}
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: ctrl.Routes(),
+	}
 
-	broker.Subscribe("topic1", subscriber1)
-	broker.Subscribe("topic1", subscriber2)
-
-	publisher := messagebroker.NewPublisher(broker)
-	publisher.Publish("topic1", "Hello, World!")
-	publisher.Publish("topic1", "Another message")
+	log.Println("Server running on port 8080")
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatalf("Could not start server: %s\n", err)
+	}
 }
