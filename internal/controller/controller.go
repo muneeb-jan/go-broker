@@ -19,14 +19,42 @@ func NewController(broker *messagebroker.Broker) *Controller {
 	}
 }
 
-type PublishRequest struct {
-	Topic   string      `json:"topic"`
-	Payload interface{} `json:"payload"`
+type RegisterPublisherRequest struct {
+	ID string `json:"id"`
 }
 
-type SubscribeRequest struct {
-	Topic string `json:"topic"`
+type RegisterSubscriberRequest struct {
 	ID    string `json:"id"`
+	Topic string `json:"topic"`
+}
+
+type PublishRequest struct {
+	PublisherID string      `json:"publisher_id"`
+	Topic       string      `json:"topic"`
+	Payload     interface{} `json:"payload"`
+}
+
+func (c *Controller) RegisterPublisher(w http.ResponseWriter, r *http.Request) {
+	var req RegisterPublisherRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	c.broker.RegisterPublisher(req.ID)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (c *Controller) RegisterSubscriber(w http.ResponseWriter, r *http.Request) {
+	var req RegisterSubscriberRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	subscriber := &messagebroker.ConcreteSubscriber{ID: req.ID}
+	c.broker.Subscribe(req.Topic, subscriber)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (c *Controller) Publish(w http.ResponseWriter, r *http.Request) {
@@ -36,28 +64,15 @@ func (c *Controller) Publish(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	publisher := messagebroker.NewPublisher(c.broker)
+	publisher := messagebroker.NewPublisher(c.broker, req.PublisherID)
 	publisher.Publish(req.Topic, req.Payload)
-
-	w.WriteHeader(http.StatusNoContent)
-}
-
-func (c *Controller) Subscribe(w http.ResponseWriter, r *http.Request) {
-	var req SubscribeRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	subscriber := &messagebroker.ConcreteSubscriber{ID: req.ID}
-	c.broker.Subscribe(req.Topic, subscriber)
-
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func (c *Controller) Routes() *http.ServeMux {
 	mux := http.NewServeMux()
+	mux.HandleFunc("/register-publisher", c.RegisterPublisher)
+	mux.HandleFunc("/register-subscriber", c.RegisterSubscriber)
 	mux.HandleFunc("/publish", c.Publish)
-	mux.HandleFunc("/subscribe", c.Subscribe)
 	return mux
 }
