@@ -9,13 +9,15 @@ import (
 )
 
 type Controller struct {
-	broker *messagebroker.Broker
-	mu     sync.Mutex
+	broker  *messagebroker.Broker
+	devMode bool
+	mu      sync.Mutex
 }
 
-func NewController(broker *messagebroker.Broker) *Controller {
+func NewController(broker *messagebroker.Broker, devMode bool) *Controller {
 	return &Controller{
-		broker: broker,
+		broker:  broker,
+		devMode: devMode,
 	}
 }
 
@@ -53,7 +55,7 @@ func (c *Controller) RegisterSubscriber(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	subscriber := &messagebroker.ConcreteSubscriber{ID: req.ID, Listener: req.Listener}
+	subscriber := messagebroker.NewConcreteSubscriber(req.ID, req.Listener, c.devMode)
 	c.broker.Subscribe(req.Topic, subscriber)
 	w.WriteHeader(http.StatusNoContent)
 }

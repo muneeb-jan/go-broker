@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 
@@ -9,15 +10,21 @@ import (
 )
 
 func main() {
+	devMode := flag.Bool("dev", false, "Run in development mode")
+	flag.Parse()
+
 	broker := messagebroker.NewBroker()
-	ctrl := controller.NewController(broker)
+	ctrl := controller.NewController(broker, *devMode)
 
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: ctrl.Routes(),
 	}
 
-	log.Println("Server running on port 8080")
+	if *devMode {
+		log.Printf("Server running on port 8080 (dev mode: %v)\n", *devMode)
+	}
+
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Could not start server: %s\n", err)
 	}
