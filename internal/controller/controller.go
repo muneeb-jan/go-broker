@@ -25,16 +25,23 @@ type RegisterPublisherRequest struct {
 	ID string `json:"id"`
 }
 
+type RegisterPublisherResponse struct {
+	Token string `json:"token"`
+}
+
 type RegisterSubscriberRequest struct {
 	ID       string `json:"id"`
 	Topic    string `json:"topic"`
 	Listener string `json:"listener"`
 }
 
+type RegisterSubscriberResponse struct {
+	Token string `json:"token"`
+}
+
 type PublishRequest struct {
-	PublisherID string      `json:"publisher_id"`
-	Topic       string      `json:"topic"`
-	Payload     interface{} `json:"payload"`
+	Topic   string      `json:"topic"`
+	Payload interface{} `json:"payload"`
 }
 
 func (c *Controller) RegisterPublisher(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +52,14 @@ func (c *Controller) RegisterPublisher(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c.broker.RegisterPublisher(req.ID)
-	w.WriteHeader(http.StatusNoContent)
+	token, err := GenerateJWT(req.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := RegisterPublisherResponse{Token: token}
+	json.NewEncoder(w).Encode(response)
 }
 
 func (c *Controller) RegisterSubscriber(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +71,14 @@ func (c *Controller) RegisterSubscriber(w http.ResponseWriter, r *http.Request) 
 
 	subscriber := messagebroker.NewConcreteSubscriber(req.ID, req.Listener, c.devMode)
 	c.broker.Subscribe(req.Topic, subscriber)
-	w.WriteHeader(http.StatusNoContent)
+	token, err := GenerateJWT(req.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := RegisterSubscriberResponse{Token: token}
+	json.NewEncoder(w).Encode(response)
 }
 
 func (c *Controller) Publish(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +88,13 @@ func (c *Controller) Publish(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	publisher := messagebroker.NewPublisher(c.broker, req.PublisherID)
+	publisherID := r.Header.Get("User-ID")
+	if !c.broker.IsPublisherRegistered(publisherID) {
+		http.Error(w, "Publisher not registered", http.StatusForbidden)
+		return
+	}
+
+	publisher := messagebroker.NewPublisher(c.broker, publisherID)
 	publisher.Publish(req.Topic, req.Payload)
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -76,6 +103,6 @@ func (c *Controller) Routes() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/register-publisher", c.RegisterPublisher)
 	mux.HandleFunc("/register-subscriber", c.RegisterSubscriber)
-	mux.HandleFunc("/publish", c.Publish)
+	mux.Handle("/publish", JWTAuthMiddleware(http.HandlerFunc(c.Publish)))
 	return mux
 }
