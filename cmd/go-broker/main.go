@@ -23,6 +23,8 @@ func main() {
 
 	if *devMode {
 		log.Printf("Server running on port 8080 (dev mode: %v)\n", *devMode)
+	} else {
+		log.Println("Server running on port 8080")
 	}
 
 	if err := server.ListenAndServe(); err != nil {
