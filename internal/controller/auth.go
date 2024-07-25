@@ -1,12 +1,21 @@
 package controller
 
 import (
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte("my_secret_key")
+var jwtKey = []byte(getEnv("JWT_KEY", "my_secret_key"))
+
+func getEnv(key, defaultValue string) string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		return defaultValue
+	}
+	return value
+}
 
 type Claims struct {
 	ID string `json:"id"`
