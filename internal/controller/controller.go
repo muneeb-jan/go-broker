@@ -24,8 +24,9 @@ type RegisterPublisherRequest struct {
 }
 
 type RegisterSubscriberRequest struct {
-	ID    string `json:"id"`
-	Topic string `json:"topic"`
+	ID       string `json:"id"`
+	Topic    string `json:"topic"`
+	Listener string `json:"listener"`
 }
 
 type PublishRequest struct {
@@ -52,7 +53,7 @@ func (c *Controller) RegisterSubscriber(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	subscriber := &messagebroker.ConcreteSubscriber{ID: req.ID}
+	subscriber := &messagebroker.ConcreteSubscriber{ID: req.ID, Listener: req.Listener}
 	c.broker.Subscribe(req.Topic, subscriber)
 	w.WriteHeader(http.StatusNoContent)
 }
