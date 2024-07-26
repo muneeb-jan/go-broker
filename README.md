@@ -4,6 +4,20 @@ Simple Message broker written in Go.
 
 ## Installation
 
+Setting the Environment Variable
+
+```bash
+# In case of Linux/macOS
+export JWT_KEY="your_secret_key"
+
+# In case of Windows Command Prompt
+set JWT_KEY=your_secret_key
+
+# In case of Windows PowerShell
+$env:JWT_KEY="your_secret_key"
+```
+
+
 Runnning the message broker is as easy as any other go app. Just use the command
 
 ```bash
@@ -26,20 +40,34 @@ Subscriber sub1 received message: {topic1 Hello, World!}
 
 ### POST APIs
 
-- Register Publisher: 
+- **Register Publisher**: 
 
 ```bash
 curl -X POST -d '{"id":"pub1"}' -H "Content-Type: application/json" http://localhost:8080/register-publisher
 ```
+  Response: 
+```json
+{
+    "token": "JWT_TOKEN_HERE"
+}
+```
 
-- Register Subscriber:
+- **Register Subscriber**:
 
 ```bash
 curl -X POST -d '{"id":"sub1", "topic":"topic1", "listener":"http://localhost:8081/listener"}' -H "Content-Type: application/json" http://localhost:8080/register-subscriber
 ```
 
+Response:
+
+```json
+{
+    "token": "JWT_TOKEN_HERE"
+}
+```
+
 - Publish:
 
 ```bash
-curl -X POST -d '{"publisher_id":"pub1", "topic":"topic1", "payload":"Hello, World!"}' -H "Content-Type: application/json" http://localhost:8080/publish
+curl -X POST -d '{"topic":"topic1", "payload":"Hello, World!"}' -H "Content-Type: application/json" -H "Authorization: JWT_TOKEN_HERE" http://localhost:8080/publish
 ```
