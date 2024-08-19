@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/muneeb-jan/go-broker/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -36,4 +37,9 @@ func Connect() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
+	// Auto-migrate the models (if necessary)
+	err = DB.AutoMigrate(&models.Publisher{}, &models.Subscriber{})
+	if err != nil {
+		log.Fatal("Failed to migrate database:", err)
+	}
 }
