@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/muneeb-jan/go-broker/internal/controller"
+	"github.com/muneeb-jan/go-broker/internal/database"
 	"github.com/muneeb-jan/go-broker/internal/messagebroker"
 )
 
@@ -13,9 +14,14 @@ func main() {
 	devMode := flag.Bool("dev", false, "Run in development mode")
 	flag.Parse()
 
+	// Initialize the database connection
+	database.Connect()
+
+	// Create new broker and controller
 	broker := messagebroker.NewBroker()
 	ctrl := controller.NewController(broker, *devMode)
 
+	// Start the HTTP server
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: ctrl.Routes(),
