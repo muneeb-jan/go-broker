@@ -1,5 +1,3 @@
-include .env
-
 .PHONY: build run image deploy destroy help
 
 all: image deploy
