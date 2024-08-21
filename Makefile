@@ -14,7 +14,10 @@ image:
 	docker build -t ${IMAGE_NAME} .
 
 deploy:
-	docker run -p 8080:8080 ${IMAGE_NAME}
+	docker-compose -f compose.yaml up
+
+destroy:
+	docker-compose -f compose.yaml up
 
 help:
 	@echo "Usage: make [target]"
@@ -24,5 +27,6 @@ help:
 	@echo "  run		Run the Application"
 	@echo "  image		Create Docker Image"
 	@echo "  deploy    	Deploy in Docker Container"
+	@echo "  destroy    	Destroy Docker Containers"
 	@echo "  all	   	Run Install and Deploy"
 	@echo "  help      	Display this help message"
