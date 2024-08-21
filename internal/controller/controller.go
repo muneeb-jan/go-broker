@@ -51,7 +51,11 @@ func (c *Controller) RegisterPublisher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c.broker.RegisterPublisher(req.ID)
+	if err := c.broker.RegisterPublisher(req.ID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	token, err := GenerateJWT(req.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -70,7 +74,11 @@ func (c *Controller) RegisterSubscriber(w http.ResponseWriter, r *http.Request) 
 	}
 
 	subscriber := messagebroker.NewConcreteSubscriber(req.ID, req.Listener, c.devMode)
-	c.broker.Subscribe(req.Topic, subscriber)
+	if err := c.broker.Subscribe(req.Topic, subscriber, req.ID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	token, err := GenerateJWT(req.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

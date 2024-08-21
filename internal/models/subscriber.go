@@ -7,5 +7,4 @@ type Subscriber struct {
 	ID       string `gorm:"uniqueIndex"`
 	Topic    string
 	Listener string
-	Token    string
 }
