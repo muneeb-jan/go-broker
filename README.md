@@ -1,6 +1,12 @@
 # go-broker
 
-Simple Message broker written in Go.
+Simple Message broker written in Go. Being lightweight, this can be used for testing pub-sub models, especially while writing a subscriber or publisher. 
+
+Go-broker uses REST for publishing and requires subscriber API to notify (in **non-dev mode**, more ahead).
+
+Please note the following information:
+
+**main** branch is the database version of go-broker. If you do not want to use database and only work with memory, you can switch to branch **go-broker-no-database**.
 
 ## Requirements
 
