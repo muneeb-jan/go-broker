@@ -4,7 +4,7 @@ services:
     image: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-gobroker}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
@@ -18,10 +18,10 @@ services:
     container_name: go-broker
     image: ${GOBROKER_IMAGE_NAME:-gobroker}
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
-      POSTGRES_URL: ${POSTGRES_URL:-localhost}
+      POSTGRES_URL: ${POSTGRES_URL:-postgres}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       POSTGRES_USER: ${POSTGRES_USER:-gobroker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       POSTGRES_DB: ${POSTGRES_DB:-postgres}
       JWT_KEY: ${JWT_KEY}
     ports:
