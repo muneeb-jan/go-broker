@@ -18,7 +18,7 @@ deploy:
 	docker-compose -f compose.yaml up
 
 destroy:
-	docker-compose -f compose.yaml up
+	docker-compose -f compose.yaml down
 
 help:
 	@echo "Usage: make [target]"
