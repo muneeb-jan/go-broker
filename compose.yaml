@@ -16,7 +16,7 @@ services:
 
   go-broker:
     container_name: go-broker
-    image: ${IMAGE_NAME:-gobroker}
+    image: ${GOBROKER_IMAGE_NAME:-gobroker}
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
       POSTGRES_URL: ${POSTGRES_URL:-localhost}

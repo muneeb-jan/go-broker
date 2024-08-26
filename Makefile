@@ -1,4 +1,6 @@
-.PHONY: build run image deploy destroy help
+.PHONY: build run image deploy destroy help info
+
+GOBROKER_IMAGE_NAME ?= gobroker
 
 all: image deploy
 
@@ -9,7 +11,8 @@ run:
 	go run cmd/go-broker/main.go
 
 image:
-	docker build -t ${IMAGE_NAME} .
+	${info Image name is ${GOBROKER_IMAGE_NAME}}
+	docker build -t ${GOBROKER_IMAGE_NAME} .
 
 deploy:
 	docker-compose -f compose.yaml up

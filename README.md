@@ -13,7 +13,7 @@ Please note the following information:
 We use postgres to store registered Publishers and Subscribers. Don't want to bother with setting up the database? Fear not! We got you covered. Use the dockerized installation as described in next section. 
 
 However, we still require the following environment flags.
-- IMAGE_NAME: Name of the go-broker image (default 'gobroker')
+- GOBROKER_IMAGE_NAME: Name of the go-broker image (default 'gobroker')
 - POSTGRES_URL: Postgresql url (default 'localhost')
 - POSTGRES_PORT: Postgres port (default '5432')
 - POSTGRES_USER: Postgres user (default 'gobroker')
