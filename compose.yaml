@@ -31,6 +31,14 @@ services:
     restart: unless-stopped
 
 
+  subscriber:
+    container_name: subscriber
+    image: subscriber
+    ports:
+      - "8081:8081"
+    networks:
+      - postgres
+    restart: unless-stopped    
 
   pgadmin:
     container_name: pgadmin_container
