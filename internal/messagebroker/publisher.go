@@ -9,13 +9,13 @@ func NewPublisher(broker *Broker, id string) *Publisher {
 	return &Publisher{broker: broker, ID: id}
 }
 
-func (p *Publisher) Publish(topic string, payload interface{}) {
+func (p *Publisher) Publish(topic string, payload interface{}) int {
 	if !p.broker.IsPublisherRegistered(p.ID) {
-		return // Do nothing if the publisher is not registered
+		return 0 // Do nothing if the publisher is not registered
 	}
 	msg := Message{
 		Topic:   topic,
 		Payload: payload,
 	}
-	p.broker.Publish(msg)
+	return p.broker.Publish(msg)
 }

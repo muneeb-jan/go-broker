@@ -103,7 +103,11 @@ func (c *Controller) Publish(w http.ResponseWriter, r *http.Request) {
 	}
 
 	publisher := messagebroker.NewPublisher(c.broker, publisherID)
-	publisher.Publish(req.Topic, req.Payload)
+	subscribersNotified := publisher.Publish(req.Topic, req.Payload)
+	if subscribersNotified == 0 {
+		http.Error(w, "No subscribers for topic", http.StatusNotFound)
+		return
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 

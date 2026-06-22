@@ -47,13 +47,17 @@ func (b *Broker) Subscribe(topic string, subscriber Subscriber, subscriberID str
 	return nil
 }
 
-// Publish sends a message to all subscribers of a topic concurrently
-func (b *Broker) Publish(msg Message) {
+// Publish sends a message to all subscribers of a topic concurrently.
+// Returns the number of subscribers that were notified.
+func (b *Broker) Publish(msg Message) int {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
+	count := 0
 	for _, subscriber := range b.subscribers[msg.Topic] {
 		go subscriber.Notify(msg) // Notify each subscriber in a separate Go routine
+		count++
 	}
+	return count
 }
 
 // RegisterPublisher adds a publisher to the broker and saves it to the database
